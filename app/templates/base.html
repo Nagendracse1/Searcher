@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+
+  <title>{% block title %} {% endblock title %}</title>
+
+  {% block head %}
+  {% endblock head %}
+  <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <link href="{% static 'css/icofont.min.css' %}" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="{% static 'css/style_base.css' %}" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="fixed-top">
+    <div class="container d-flex">
+
+      <div class="logo mr-auto">
+        <h1 class="text-light"><a href="{% url 'index' %}">Satrix</a></h1>
+        <!-- Uncomment below if you prefer to use an image logo -->
+        <!-- <a href="index.html"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
+      </div>
+
+      <nav class="nav-menu d-none d-lg-block">
+        <ul>
+          <li class="active"><a href="{% url 'index' %}">Home</a></li>
+
+
+
+          <li><a href="{% url 'searcher' %}">App Searcher</a></li>
+          <li><a href="{% url 'finder' %}">Keyword Finder</a></li>
+
+
+
+        </ul>
+      </nav><!-- .nav-menu -->
+
+    </div>
+  </header>
+  <hr>
+  <!-- End Header -->
+
+  <!-- ======= Hero Section ======= -->
+{% block body %}
+
+{% endblock body %}
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer" >
+
+
+    <div class="container">
+      <div class="copyright">
+        &copy; Copyright <strong><span>Nagendra Kumar</span></strong>. All Rights Reserved
+      </div>
+      <div class="credits">
+
+        Designed by <a href="#">Nagendra Kumar</a>
+      </div>
+    </div>
+  </footer><!-- End Footer -->
+
+
+
+
+
+    <script src="{% static 'JS/jquery.min.js' %}"></script>
+  	<script src="{% static 'JS/main.js' %}"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head  %}
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+
+{% endblock head %}
+
+
+{% block title  %}
+Keyword Finder
+{% endblock title %}
+
+
+{% block body  %}
+
+<main id="main">
+    <section class="about" id="about">
+        <div class="container">
+            <div class="panel">
+                <div class="panel-heading">
+
+                    <h3 align="center" class="panel-title">Keyword Finder</h3><br>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-3 col-xs-12"></div>
+                        <div class="col-md-7 col-xs-12">
+
+                            <form action="{% url 'finder' %}" method="post" id="form1" role="form">
+                                {% csrf_token %}
+
+
+                                <label  style="margin-left: 100px;">Enter URL: </label>
+                                <input type="text" id="urll" placeholder="https://www.dotabuff.com/" name="url" required="True">
+
+                                <input type="submit" id="btnSubmit">
+
+
+                            </form>
+                            <br><br>
+
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 col-xs-12"></div>
+                        <div class="col-md-8 col-xs-12" id="output">
+                            <div class="ajaxProgress" style="display:none">
+                                <h3>Please wait....<img src="{% static 'images/giphy.gif' %}" alt="loading" height="35px" width="35px"></h3>
+
+                            </div>
+                            <div class="data"></div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<script src="{% static 'JS/jquery.min.js' %}"></script>
+<script type="text/javascript">
+    
+     $(document).on('submit', '#form1', function(e){
+            e.preventDefault();
+            $(".data").empty();
+            
+
+
+            $('.ajaxProgress').show();
+
+        $.ajax({
+            type:"POST",
+            url:'{% url 'finder' %}',
+            data:{
+                url:$("#urll").val(),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+                action: 'post'
+            },
+
+
+            success:function(json){
+                //alert(play_store.result);
+                $('.ajaxProgress').hide();
+                document.getElementById("form1").reset();
+
+                if(json.invalid == "Invalid URL"){
+
+                        
+                        $('#btnSubmit').attr("disabled", false);
+                        alert('Invalid URL');
+
+                }
+                else{
+
+
+                $(".data").prepend('<div class="col-md-12">'+
+                '<div class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">' +
+                    '<div class="col p-6 d-flex flex-column position-static">' +
+
+                        '<h4>List of keywords found with related urls for each keyword-</h4>'+
+                        '<p class="mb-auto"> ' + json.d + '</p>' +
+                        '<h4>List of recommended keywords-</h4>'+
+                        '<p class="mb-auto">' + json.rec_key + '</p>' +
+                        
+
+                    '</div>'+
+                '</div>' +
+                '</div>'
+            )
+            $('#btnSubmit1').attr("disabled", false);
+            }
+            },
+                error : function(xhr,errmsg,err) {
+                console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                 }
+        });
+        });
+
+
+</script>
+
+
+
+
+{% endblock body %}

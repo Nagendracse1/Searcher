@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head  %}
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+
+
+{% endblock head %}
+
+
+{% block title  %}
+App Searcher
+{% endblock title %}
+
+
+{% block body  %}
+<main id="main">
+    <section class="about" id="about">
+        <div class="container">
+            <div class="panel">
+                <div class="panel-heading">
+
+                    <h3 align="center" class="panel-title">Select Your Store</h3><br>
+                </div>
+                <div class="panel-body" >
+                    <div class="row">
+                        <div class="col-md-5 col-xs-12"></div>
+                        <div class="col-md-7 col-xs-12">
+
+                            <form action="{% url 'searcher' %}" method="post" id="form1" role="form">
+                                {% csrf_token %}
+
+
+                                <input type="radio" id="play" class="store" name = "store" > <label id="play" style="font-size: large">Play Store</label>
+
+
+                                 <div class = "play-store" style="display: none;">
+
+
+                                    <label id="package" style="margin-left: 100px;">Package name: </label> {{g_form.package_name}}
+
+                                     <input type="submit" id="btnSubmit1">
+
+                                </div>
+
+                            </form>
+                            <br><br>
+                            <form action="{% url 'searcher' %}" method="post" id="form2" role="form">
+                                {% csrf_token %}
+                            <input type="radio" id="app" class="store" name="store" > <label id="app" style="font-size: large">App Store</label>
+
+
+                                <div class="app-store" style="display: none;">
+
+                                    <label id="app-name" style="margin-left: 100px;">App Name:</label> {{ a_form.name }}
+
+                                    <br>
+
+                                    <label id="app-id" style="margin-left: 175.5px;">Application ID:</label> {{ a_form.appl_id }}
+
+                                    <br><br>
+
+                                    <input type="submit" style="margin-left: 350px;" id="btnSubmit2">
+
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 col-xs-12"></div>
+                        <div class="col-md-8 col-xs-12" id="output">
+                            <div class="ajaxProgress" style="display:none">
+                                <h3>Please wait....<img src="{% static 'images/giphy.gif' %}" alt="loading" height="35px" width="35px"></h3>
+
+                            </div>
+                            <div class="data"></div>
+                        </div>
+
+                    </div>
+        </div>
+            </div>
+        </div>
+    </section>
+</main>
+ <script src="{% static 'JS/jquery.min.js' %}"></script>
+<script language="JavaScript">
+
+    $(".store").each(function(){
+
+        $(this).click(function(){
+
+            if ($(this).attr("id") == "play"){
+
+                $(".app-store").css("display","none").delay(1000)
+
+                $(".play-store").css("display","inline").delay(1000)
+
+                document.getElementById("form2").reset();
+
+                }
+
+            else {
+
+                $(".play-store").css("display","none").delay(1000)
+                document.getElementById("form1").reset();
+                $(".app-store").css("display","inline").delay(1000)
+
+
+                }
+
+            })
+
+        })
+
+        // AJAX----------------
+
+        $(document).on('submit', '#form1', function(e){
+    	    e.preventDefault();
+    	    $(".data").empty();
+    	    $("#btnSubmit1").attr("disabled", true);
+
+
+    	    $('.ajaxProgress').show();
+
+    	$.ajax({
+    		type:"POST",
+    		url:'{% url 'searcher' %}',
+    		data:{
+    			package_name:$({{g_form.package_name.auto_id}}).val(),
+    			csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+    			action: 'post'
+    		},
+
+
+    		success:function(json){
+    		    //alert(play_store.result);
+    		    $('.ajaxProgress').hide();
+    		    document.getElementById("form1").reset();
+
+                if(json.Invalid_Package_name == "Invalid Package name"){
+
+                        json.Invalid_Package_name;
+                        $('#btnSubmit').attr("disabled", false);
+                        alert('Invalid Package name');
+
+                }
+                else{
+
+
+    		    $(".data").prepend('<div class="col-md-12">'+
+                '<div class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">' +
+                    '<div class="col p-6 d-flex flex-column position-static">' +
+
+
+
+
+                        '<img src='+json.image_url+' height="150px" width="150px" alt="Icon" >' +
+                        '<h2 class="mb-auto">' + json.name + '</h2>' +'<br>'+
+
+                        '<h4>'+'<p class="mb-auto">' + json.developer + '</p>' +'</h4>'+
+
+                        '<p class="mb-auto">No of downloads: ' + json.no_downloads + '</p>' +
+                        '<p class="mb-auto">' + json.rating + '</p>' +
+                        '<p class="mb-auto">No of reviews: ' + json.no_of_review + '</p>' +
+                        '<h4>Description</h4>'+
+                        '<p class="mb-auto">' + json.description + '</p>' +
+
+                    '</div>'+
+                '</div>' +
+                '</div>'
+            )
+            $('#btnSubmit1').attr("disabled", false);
+            }
+    		},
+                error : function(xhr,errmsg,err) {
+                console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                 }
+    	});
+        });
+
+
+//App store ajax
+
+        $(document).on('submit', '#form2', function(e){
+    	    e.preventDefault();
+    	    $(".data").empty();
+    	    $("#btnSubmit2").attr("disabled", true);
+
+
+    	    $('.ajaxProgress').show();
+
+    	$.ajax({
+    		type:"POST",
+    		url:'{% url 'searcher' %}',
+    		data:{
+    			name:$({{a_form.name.auto_id}}).val(),
+    			appl_id:$({{a_form.appl_id.auto_id}}).val(),
+    			csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+    			action: 'post'
+    		},
+
+
+    		success:function(json){
+    		    //alert(play_store.result);
+    		    $('.ajaxProgress').hide();
+    		    document.getElementById("form2").reset();
+                if(json.Invalid_Package_name == "Invalid Package name"){
+
+                        json.Invalid_Package_name;
+                        $('#btnSubmit').attr("disabled", false);
+                        alert('Invalid App name or Application ID');
+
+                }
+                else{
+
+
+    		    $(".data").prepend('<div class="col-md-12">'+
+                '<div class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">' +
+                    '<div class="col p-6 d-flex flex-column position-static">' +
+
+
+
+
+                        '<img src='+json.image_url+' height="150px" width="150px" alt="Icon">' +
+                        '<h2 class="mb-auto">' + json.name + '</h2>' +'<br>'+
+
+                        '<h4>'+'<p class="mb-auto">' + json.developer + '</p>' +'</h4>'+
+
+                        '<p class="mb-auto">No of downloads: ' + json.no_downloads + '</p>' +
+                        '<p class="mb-auto">Rating: ' + json.rating + '</p>' +
+                        '<p class="mb-auto">No of reviews: ' + json.no_of_review + '</p>' +
+                        '<h4>Description</h4>'+
+                        '<p class="mb-auto">' + json.description + '</p>' +
+
+                    '</div>'+
+                '</div>' +
+                '</div>'
+            )
+            $('#btnSubmit2').attr("disabled", false);
+            }
+    		},
+                error : function(xhr,errmsg,err) {
+                console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                 }
+    	});
+        });
+
+
+
+
+
+</script>
+
+
+
+
+{% endblock body %}
